@@ -1,40 +1,64 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * SwiftDrop design system — brand colors, light/dark palettes, spacing, fonts.
+ * Other styling options exist (Nativewind, Tamagui, unistyles); we use plain
+ * StyleSheet + these tokens to keep things simple and dependency-free.
  */
 
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
-export const Colors = {
+/** Brand palette — the SwiftDrop orange. */
+export const Brand = {
+  primary: '#FF6B00',
+  primaryDark: '#E25E00',
+  primarySoft: '#FFF1E6',
+  accent: '#10B981', // success / "delivered"
+  accentSoft: '#E7F7F0',
+  warning: '#F59E0B',
+} as const;
+
+export type ThemePalette = {
+  text: string;
+  textSecondary: string;
+  background: string;
+  backgroundElement: string;
+  backgroundSelected: string;
+  card: string;
+  border: string;
+  tint: string;
+};
+
+export const Colors: { light: ThemePalette; dark: ThemePalette } = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#0F1419',
+    textSecondary: '#5B6470',
+    background: '#FFFFFF',
+    backgroundElement: '#F4F5F7',
+    backgroundSelected: '#E6E8EB',
+    card: '#FFFFFF',
+    border: '#E6E8EB',
+    tint: Brand.primary,
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
+    text: '#FFFFFF',
     textSecondary: '#B0B4BA',
+    background: '#0B0D10',
+    backgroundElement: '#16191D',
+    backgroundSelected: '#23272D',
+    card: '#16191D',
+    border: '#23272D',
+    tint: Brand.primary,
   },
-} as const;
+};
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -51,6 +75,7 @@ export const Fonts = Platform.select({
   },
 });
 
+/** 4-pt spacing scale. */
 export const Spacing = {
   half: 2,
   one: 4,
@@ -59,6 +84,13 @@ export const Spacing = {
   four: 24,
   five: 32,
   six: 64,
+} as const;
+
+export const Radius = {
+  sm: 10,
+  md: 16,
+  lg: 22,
+  pill: 999,
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
