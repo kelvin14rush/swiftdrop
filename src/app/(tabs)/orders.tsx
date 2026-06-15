@@ -74,6 +74,12 @@ function OrderCard({ o, c }: { o: Order; c: (typeof Colors)['light'] }) {
           <Text style={[styles.status, { color: Brand.warning }]}>{o.status}</Text>
           <Text style={[styles.time, { color: c.textSecondary }]}>• {timeAgo(o.createdAt)}</Text>
         </View>
+        {o.pin ? (
+          <View style={[styles.pinChip, { backgroundColor: c.backgroundElement }]}>
+            <Ionicons name="lock-closed" size={11} color={c.textSecondary} />
+            <Text style={[styles.pinText, { color: c.textSecondary }]}>Delivery code {o.pin}</Text>
+          </View>
+        ) : null}
       </View>
       <Text style={[styles.total, { color: c.text }]}>GHS {o.total}</Text>
     </View>
@@ -91,6 +97,8 @@ const styles = StyleSheet.create({
   dot: { width: 7, height: 7, borderRadius: 4 },
   status: { fontSize: 12, fontWeight: '700' },
   time: { fontSize: 12 },
+  pinChip: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill, marginTop: Spacing.two },
+  pinText: { fontSize: 11, fontWeight: '700' },
   total: { fontSize: 15, fontWeight: '800' },
 
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.four },

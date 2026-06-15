@@ -35,15 +35,17 @@ export default function BuyMeScreen() {
 
   function findRider() {
     const firstLine = items.trim().split('\n')[0].slice(0, 40);
-    addOrder({
+    const order = addOrder({
       type: 'buy',
       title: firstLine ? `Buy: ${firstLine}` : 'Shopping errand',
       subtitle: `Deliver to ${dropoff}`,
       total: DELIVERY_FEE,
     });
-    Alert.alert('Order placed 🎉', "We're matching you with a rider. Track it under Orders.", [
-      { text: 'View orders', onPress: () => router.replace('/orders') },
-    ]);
+    Alert.alert(
+      'Order placed 🎉',
+      `We're matching you with a rider.\n\nYour delivery code is ${order.pin} — share it with the rider only when your items arrive.`,
+      [{ text: 'View orders', onPress: () => router.replace('/orders') }],
+    );
   }
 
   return (
