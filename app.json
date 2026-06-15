@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "swiftdrop",
+    "name": "SwiftDrop",
     "slug": "swiftdrop",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FF6B00",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
