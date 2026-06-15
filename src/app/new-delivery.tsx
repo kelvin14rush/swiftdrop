@@ -35,15 +35,17 @@ export default function NewDeliveryScreen() {
   const ready = pickup.trim().length > 2 && dropoff.trim().length > 2;
 
   function findRider() {
-    addOrder({
+    const order = addOrder({
       type: 'package',
       title: `Send a ${size.label.toLowerCase()} package`,
       subtitle: `${pickup} → ${dropoff}`,
       total,
     });
-    Alert.alert('Order placed 🎉', 'A rider is being matched. You can track it under Orders.', [
-      { text: 'View orders', onPress: () => router.replace('/orders') },
-    ]);
+    Alert.alert(
+      'Order placed 🎉',
+      `A rider is being matched.\n\nYour delivery code is ${order.pin} — share it with the rider only when your package arrives, so the order can't be completed without you.`,
+      [{ text: 'View orders', onPress: () => router.replace('/orders') }],
+    );
   }
 
   return (

@@ -16,6 +16,7 @@ export type Order = {
   subtitle: string;
   total: number;
   status: string;
+  pin: string;
   createdAt: number;
 };
 
@@ -68,6 +69,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
       id: 'ord_' + Date.now().toString(36),
       createdAt: Date.now(),
       status: input.status ?? 'Finding a rider',
+      pin: String(Math.floor(1000 + Math.random() * 9000)),
       type: input.type,
       title: input.title,
       subtitle: input.subtitle,
