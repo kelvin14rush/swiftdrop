@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
@@ -15,6 +16,7 @@ import {
 
 import { BUY_SUGGESTIONS } from '@/constants/mock';
 import { Brand, Colors, Radius, Spacing } from '@/constants/theme';
+import { useOrders } from '@/lib/orders';
 
 const DELIVERY_FEE = 15; // flat GHS for now; real pricing comes from distance later
 
@@ -27,14 +29,21 @@ export default function BuyMeScreen() {
   const [shop, setShop] = useState('');
   const [dropoff, setDropoff] = useState('');
   const [budget, setBudget] = useState('');
+  const { addOrder } = useOrders();
 
   const ready = items.trim().length > 2 && dropoff.trim().length > 2;
 
   function findRider() {
-    Alert.alert(
-      'Looking for a rider 🛵',
-      `We'll buy:\n${items}\n${shop ? `From: ${shop}\n` : ''}Deliver to: ${dropoff}\n${budget ? `Budget: GHS ${budget}\n` : ''}\nDelivery fee: GHS ${DELIVERY_FEE} (item cost paid on delivery).\n\n(Demo — next we'll connect riders & mobile-money payment.)`,
-    );
+    const firstLine = items.trim().split('\n')[0].slice(0, 40);
+    addOrder({
+      type: 'buy',
+      title: firstLine ? `Buy: ${firstLine}` : 'Shopping errand',
+      subtitle: `Deliver to ${dropoff}`,
+      total: DELIVERY_FEE,
+    });
+    Alert.alert('Order placed 🎉', "We're matching you with a rider. Track it under Orders.", [
+      { text: 'View orders', onPress: () => router.replace('/orders') },
+    ]);
   }
 
   return (

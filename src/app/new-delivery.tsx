@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
@@ -15,6 +16,7 @@ import {
 
 import { PACKAGE_SIZES } from '@/constants/mock';
 import { Brand, Colors, Radius, Spacing } from '@/constants/theme';
+import { useOrders } from '@/lib/orders';
 
 const SERVICE_FEE = 5; // flat GHS for now; real pricing comes from distance later
 
@@ -26,16 +28,22 @@ export default function NewDeliveryScreen() {
   const [dropoff, setDropoff] = useState('');
   const [note, setNote] = useState('');
   const [sizeId, setSizeId] = useState('small');
+  const { addOrder } = useOrders();
 
   const size = PACKAGE_SIZES.find((s) => s.id === sizeId)!;
   const total = size.baseGHS + SERVICE_FEE;
   const ready = pickup.trim().length > 2 && dropoff.trim().length > 2;
 
   function findRider() {
-    Alert.alert(
-      'Looking for a rider 🛵',
-      `Pickup: ${pickup}\nDrop-off: ${dropoff}\nPackage: ${size.label}\nTotal: GHS ${total}\n\n(This is a demo — next we'll connect riders & mobile-money payment.)`,
-    );
+    addOrder({
+      type: 'package',
+      title: `Send a ${size.label.toLowerCase()} package`,
+      subtitle: `${pickup} → ${dropoff}`,
+      total,
+    });
+    Alert.alert('Order placed 🎉', 'A rider is being matched. You can track it under Orders.', [
+      { text: 'View orders', onPress: () => router.replace('/orders') },
+    ]);
   }
 
   return (
