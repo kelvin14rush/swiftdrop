@@ -4,8 +4,6 @@
  * StyleSheet + these tokens to keep things simple and dependency-free.
  */
 
-import '@/global.css';
-
 import { Platform } from 'react-native';
 
 /** Brand palette — the SwiftDrop orange. */
