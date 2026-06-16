@@ -6,10 +6,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Dimensions, Easing, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AuroraBackground } from '@/components/aurora';
 import { Counter, FadeInView, Reveal, Skeleton, useReducedMotion } from '@/components/motion';
 import { Brand, Colors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
 
 const SCREEN_W = Dimensions.get('window').width;
+
+type Glass = { bg: string; border: string };
 
 export default function HomeScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -17,18 +20,17 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
 
+  const glass: Glass =
+    scheme === 'dark'
+      ? { bg: 'rgba(26,26,34,0.55)', border: 'rgba(255,255,255,0.10)' }
+      : { bg: 'rgba(255,255,255,0.62)', border: 'rgba(255,255,255,0.75)' };
+
   return (
-    <View style={{ flex: 1, backgroundColor: c.background }}>
-      {/* Soft glow behind the top of the screen */}
-      <LinearGradient
-        colors={[scheme === 'dark' ? '#2A1605' : '#FFEAD8', c.background]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 0.45 }}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
+    <View style={{ flex: 1 }}>
+      <AuroraBackground />
 
       <Animated.ScrollView
+        style={{ backgroundColor: 'transparent' }}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingTop: insets.top + Spacing.three, paddingBottom: Spacing.six }}
@@ -43,8 +45,8 @@ export default function HomeScreen() {
               <Ionicons name="chevron-down" size={16} color={c.textSecondary} />
             </Pressable>
           </View>
-          <Pressable onPress={() => router.push('/notifications')} style={[styles.avatar, { backgroundColor: Brand.primarySoft }]}>
-            <Ionicons name="notifications-outline" size={22} color={Brand.primaryDark} />
+          <Pressable onPress={() => router.push('/notifications')} style={[styles.avatar, { backgroundColor: glass.bg, borderColor: glass.border, borderWidth: 1 }]}>
+            <Ionicons name="notifications-outline" size={22} color={Brand.primary} />
           </Pressable>
         </FadeInView>
 
@@ -53,12 +55,10 @@ export default function HomeScreen() {
           <LinearGradient colors={['#FF9A2E', '#FF6B00', '#F23D02']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
             <HeroBackground />
             <Shine />
+            <HeroParticles />
             <Text style={styles.heroTitle}>Get anything{'\n'}done, fast.</Text>
             <Text style={styles.heroSub}>Send a parcel or have a rider buy what you need — delivered in minutes.</Text>
-            <View style={styles.heroBadge}>
-              <Ionicons name="flash" size={14} color={Brand.primaryDark} />
-              <Text style={[styles.heroBadgeText, { color: Brand.primaryDark }]}>Avg. 25 min</Text>
-            </View>
+            <HeroBadge />
             <Scooter />
           </LinearGradient>
         </FadeInView>
@@ -74,6 +74,7 @@ export default function HomeScreen() {
             icon="cube"
             gradient={['#FF9A2E', '#FF6B00']}
             c={c}
+            glass={glass}
             onPress={() => router.push('/new-delivery')}
           />
         </FadeInView>
@@ -84,13 +85,14 @@ export default function HomeScreen() {
             icon="bag-handle"
             gradient={['#34D399', '#059669']}
             c={c}
+            glass={glass}
             onPress={() => router.push('/buy-me')}
           />
         </FadeInView>
 
         {/* Stats (skeleton -> animated counters) */}
         <FadeInView delay={380}>
-          <StatsStrip c={c} />
+          <StatsStrip c={c} glass={glass} />
         </FadeInView>
 
         {/* How it works (scroll-reveal) */}
@@ -106,14 +108,14 @@ export default function HomeScreen() {
         {/* Trust / security (scroll-reveal) */}
         <Reveal scrollY={scrollY}>
           <Text style={[styles.sectionTitle, { color: c.text }]}>Safe &amp; secure</Text>
-          <View style={[styles.trust, { backgroundColor: c.card, borderColor: c.border }]}>
+          <View style={[styles.trust, { backgroundColor: glass.bg, borderColor: glass.border }]}>
             <TrustItem icon="shield-checkmark" color={Brand.accent} label="Verified riders" c={c} />
-            <View style={[styles.trustDivider, { backgroundColor: c.border }]} />
+            <View style={[styles.trustDivider, { backgroundColor: glass.border }]} />
             <View style={styles.trustItem}>
               <LiveDot />
               <Text style={[styles.trustLabel, { color: c.text }]}>Live tracking</Text>
             </View>
-            <View style={[styles.trustDivider, { backgroundColor: c.border }]} />
+            <View style={[styles.trustDivider, { backgroundColor: glass.border }]} />
             <TrustItem icon="key" color={Brand.primary} label="Delivery code" c={c} />
           </View>
         </Reveal>
@@ -124,7 +126,7 @@ export default function HomeScreen() {
 
 /* ---------------- Stats ---------------- */
 
-function StatsStrip({ c }: { c: ThemePalette }) {
+function StatsStrip({ c, glass }: { c: ThemePalette; glass: Glass }) {
   const reduced = useReducedMotion();
   const [loaded, setLoaded] = useState(reduced);
   useEffect(() => {
@@ -137,15 +139,15 @@ function StatsStrip({ c }: { c: ThemePalette }) {
   }, [reduced]);
 
   return (
-    <View style={[styles.stats, { backgroundColor: c.card, borderColor: c.border }]}>
+    <View style={[styles.stats, { backgroundColor: glass.bg, borderColor: glass.border }]}>
       <StatCell c={c} label="Deliveries" loaded={loaded}>
         <Counter value={12000} suffix="+" style={[styles.statNum, { color: c.text }]} />
       </StatCell>
-      <View style={[styles.statSep, { backgroundColor: c.border }]} />
+      <View style={[styles.statSep, { backgroundColor: glass.border }]} />
       <StatCell c={c} label="Avg. time" loaded={loaded}>
         <Counter value={25} suffix="m" style={[styles.statNum, { color: c.text }]} />
       </StatCell>
-      <View style={[styles.statSep, { backgroundColor: c.border }]} />
+      <View style={[styles.statSep, { backgroundColor: glass.border }]} />
       <StatCell c={c} label="Rating" loaded={loaded}>
         <Counter value={4.9} decimals={1} style={[styles.statNum, { color: c.text }]} />
       </StatCell>
@@ -163,6 +165,65 @@ function StatCell({ c, label, loaded, children }: { c: ThemePalette; label: stri
 }
 
 /* ---------------- Animated hero decor ---------------- */
+
+function HeroBadge() {
+  const reduced = useReducedMotion();
+  const s = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (reduced) return;
+    const l = Animated.loop(
+      Animated.sequence([
+        Animated.timing(s, { toValue: 1.06, duration: 900, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        Animated.timing(s, { toValue: 1, duration: 900, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+      ]),
+    );
+    l.start();
+    return () => l.stop();
+  }, [reduced, s]);
+  return (
+    <Animated.View style={[styles.heroBadge, { transform: [{ scale: s }] }]}>
+      <Ionicons name="flash" size={14} color={Brand.primaryDark} />
+      <Text style={[styles.heroBadgeText, { color: Brand.primaryDark }]}>Avg. 25 min</Text>
+    </Animated.View>
+  );
+}
+
+function HeroParticles() {
+  const reduced = useReducedMotion();
+  const dots = useRef(
+    Array.from({ length: 6 }).map(() => ({
+      v: new Animated.Value(0),
+      x: 16 + Math.random() * (SCREEN_W - 90),
+      size: 4 + Math.random() * 5,
+      dur: 4000 + Math.random() * 3000,
+      delay: Math.random() * 3000,
+    })),
+  ).current;
+  useEffect(() => {
+    if (reduced) return;
+    const ls = dots.map((d) =>
+      Animated.loop(Animated.timing(d.v, { toValue: 1, duration: d.dur, delay: d.delay, useNativeDriver: true, easing: Easing.linear })),
+    );
+    ls.forEach((l) => l.start());
+    return () => ls.forEach((l) => l.stop());
+  }, [reduced, dots]);
+  if (reduced) return null;
+  return (
+    <>
+      {dots.map((d, i) => {
+        const translateY = d.v.interpolate({ inputRange: [0, 1], outputRange: [170, -20] });
+        const opacity = d.v.interpolate({ inputRange: [0, 0.15, 0.85, 1], outputRange: [0, 0.7, 0.7, 0] });
+        return (
+          <Animated.View
+            key={i}
+            pointerEvents="none"
+            style={{ position: 'absolute', left: d.x, bottom: 0, width: d.size, height: d.size, borderRadius: d.size / 2, backgroundColor: 'rgba(255,255,255,0.9)', opacity, transform: [{ translateY }] }}
+          />
+        );
+      })}
+    </>
+  );
+}
 
 function HeroBackground() {
   const reduced = useReducedMotion();
@@ -277,6 +338,7 @@ function ActionCard({
   icon,
   gradient,
   c,
+  glass,
   onPress,
 }: {
   title: string;
@@ -284,6 +346,7 @@ function ActionCard({
   icon: keyof typeof Ionicons.glyphMap;
   gradient: [string, string];
   c: ThemePalette;
+  glass: Glass;
   onPress: () => void;
 }) {
   return (
@@ -294,7 +357,7 @@ function ActionCard({
       }}
       style={({ pressed }) => [
         styles.actionCard,
-        { backgroundColor: c.card, borderColor: c.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] },
+        { backgroundColor: glass.bg, borderColor: glass.border, opacity: pressed ? 0.92 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] },
       ]}>
       <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.actionIcon}>
         <Ionicons name={icon} size={26} color="#FFFFFF" />
@@ -347,10 +410,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.five,
     overflow: 'hidden',
     shadowColor: '#FF6B00',
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
   },
   hero: { padding: Spacing.four, overflow: 'hidden', minHeight: 190 },
   blob1: { position: 'absolute', top: -40, right: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.18)' },
