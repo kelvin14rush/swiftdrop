@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, type ReactNode } from 'react';
@@ -30,15 +31,15 @@ export default function HomeScreen() {
         <FadeInView style={styles.headerRow}>
           <View>
             <Text style={[styles.greeting, { color: c.textSecondary }]}>Good day 👋</Text>
-            <View style={styles.locationRow}>
+            <Pressable onPress={() => router.push('/addresses')} style={styles.locationRow}>
               <Ionicons name="location" size={16} color={Brand.primary} />
               <Text style={[styles.location, { color: c.text }]}>Accra, Ghana</Text>
               <Ionicons name="chevron-down" size={16} color={c.textSecondary} />
-            </View>
+            </Pressable>
           </View>
-          <View style={[styles.avatar, { backgroundColor: Brand.primarySoft }]}>
+          <Pressable onPress={() => router.push('/notifications')} style={[styles.avatar, { backgroundColor: Brand.primarySoft }]}>
             <Ionicons name="notifications-outline" size={22} color={Brand.primaryDark} />
-          </View>
+          </Pressable>
         </FadeInView>
 
         {/* Hero */}
@@ -160,7 +161,10 @@ function ActionCard({
 }) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        Haptics.selectionAsync().catch(() => {});
+        onPress();
+      }}
       style={({ pressed }) => [
         styles.actionCard,
         { backgroundColor: c.card, borderColor: c.border, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] },
