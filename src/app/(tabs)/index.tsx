@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Dimensions, Easing, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Animated, Dimensions, Easing, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Counter, FadeInView, Reveal, Skeleton, useReducedMotion } from '@/components/motion';
 import { Brand, Colors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
 
 const SCREEN_W = Dimensions.get('window').width;
@@ -14,6 +15,7 @@ export default function HomeScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const c = Colors[scheme];
   const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
@@ -26,7 +28,9 @@ export default function HomeScreen() {
         pointerEvents="none"
       />
 
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingTop: insets.top + Spacing.three, paddingBottom: Spacing.six }}
         showsVerticalScrollIndicator={false}>
         {/* Greeting + location */}
@@ -46,11 +50,7 @@ export default function HomeScreen() {
 
         {/* Hero */}
         <FadeInView delay={80} style={styles.heroWrap}>
-          <LinearGradient
-            colors={['#FF9A2E', '#FF6B00', '#F23D02']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hero}>
+          <LinearGradient colors={['#FF9A2E', '#FF6B00', '#F23D02']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
             <HeroBackground />
             <Shine />
             <Text style={styles.heroTitle}>Get anything{'\n'}done, fast.</Text>
@@ -67,7 +67,6 @@ export default function HomeScreen() {
         <FadeInView delay={160}>
           <Text style={[styles.sectionTitle, { color: c.text }]}>What do you need?</Text>
         </FadeInView>
-
         <FadeInView delay={220}>
           <ActionCard
             title="Send a package"
@@ -89,18 +88,23 @@ export default function HomeScreen() {
           />
         </FadeInView>
 
-        {/* How it works */}
+        {/* Stats (skeleton -> animated counters) */}
         <FadeInView delay={380}>
+          <StatsStrip c={c} />
+        </FadeInView>
+
+        {/* How it works (scroll-reveal) */}
+        <Reveal scrollY={scrollY}>
           <Text style={[styles.sectionTitle, { color: c.text }]}>How it works</Text>
           <View style={styles.stepsRow}>
             <Step n="1" label="Tell us what you need" color={c} />
             <Step n="2" label="A rider accepts" color={c} />
             <Step n="3" label="Track & pay" color={c} />
           </View>
-        </FadeInView>
+        </Reveal>
 
-        {/* Trust / security */}
-        <FadeInView delay={460}>
+        {/* Trust / security (scroll-reveal) */}
+        <Reveal scrollY={scrollY}>
           <Text style={[styles.sectionTitle, { color: c.text }]}>Safe &amp; secure</Text>
           <View style={[styles.trust, { backgroundColor: c.card, borderColor: c.border }]}>
             <TrustItem icon="shield-checkmark" color={Brand.accent} label="Verified riders" c={c} />
@@ -112,18 +116,61 @@ export default function HomeScreen() {
             <View style={[styles.trustDivider, { backgroundColor: c.border }]} />
             <TrustItem icon="key" color={Brand.primary} label="Delivery code" c={c} />
           </View>
-        </FadeInView>
-      </ScrollView>
+        </Reveal>
+      </Animated.ScrollView>
     </View>
   );
 }
 
-/** Living hero background: a slowly shifting gradient overlay + drifting light blobs. */
+/* ---------------- Stats ---------------- */
+
+function StatsStrip({ c }: { c: ThemePalette }) {
+  const reduced = useReducedMotion();
+  const [loaded, setLoaded] = useState(reduced);
+  useEffect(() => {
+    if (reduced) {
+      setLoaded(true);
+      return;
+    }
+    const t = setTimeout(() => setLoaded(true), 800);
+    return () => clearTimeout(t);
+  }, [reduced]);
+
+  return (
+    <View style={[styles.stats, { backgroundColor: c.card, borderColor: c.border }]}>
+      <StatCell c={c} label="Deliveries" loaded={loaded}>
+        <Counter value={12000} suffix="+" style={[styles.statNum, { color: c.text }]} />
+      </StatCell>
+      <View style={[styles.statSep, { backgroundColor: c.border }]} />
+      <StatCell c={c} label="Avg. time" loaded={loaded}>
+        <Counter value={25} suffix="m" style={[styles.statNum, { color: c.text }]} />
+      </StatCell>
+      <View style={[styles.statSep, { backgroundColor: c.border }]} />
+      <StatCell c={c} label="Rating" loaded={loaded}>
+        <Counter value={4.9} decimals={1} style={[styles.statNum, { color: c.text }]} />
+      </StatCell>
+    </View>
+  );
+}
+
+function StatCell({ c, label, loaded, children }: { c: ThemePalette; label: string; loaded: boolean; children: ReactNode }) {
+  return (
+    <View style={styles.statCell}>
+      {loaded ? children : <Skeleton width={46} height={22} radius={6} />}
+      <Text style={[styles.statLabel, { color: c.textSecondary }]}>{label}</Text>
+    </View>
+  );
+}
+
+/* ---------------- Animated hero decor ---------------- */
+
 function HeroBackground() {
+  const reduced = useReducedMotion();
   const shift = useRef(new Animated.Value(0)).current;
   const b1 = useRef(new Animated.Value(0)).current;
   const b2 = useRef(new Animated.Value(0)).current;
   useEffect(() => {
+    if (reduced) return;
     const breathe = (v: Animated.Value, duration: number) =>
       Animated.loop(
         Animated.sequence([
@@ -134,9 +181,9 @@ function HeroBackground() {
     const loops = [breathe(shift, 3500), breathe(b1, 6000), breathe(b2, 7500)];
     loops.forEach((l) => l.start());
     return () => loops.forEach((l) => l.stop());
-  }, [shift, b1, b2]);
+  }, [reduced, shift, b1, b2]);
 
-  const overlayOpacity = shift.interpolate({ inputRange: [0, 1], outputRange: [0, 0.6] });
+  const overlayOpacity = reduced ? 0.25 : shift.interpolate({ inputRange: [0, 1], outputRange: [0, 0.6] });
   const b1t = {
     transform: [
       { translateX: b1.interpolate({ inputRange: [0, 1], outputRange: [0, 26] }) },
@@ -163,70 +210,66 @@ function HeroBackground() {
   );
 }
 
-/** A scooter that drives across the hero on a loop. */
 function Scooter() {
+  const reduced = useReducedMotion();
   const x = useRef(new Animated.Value(0)).current;
   const bob = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(x, { toValue: 1, duration: 3400, delay: 500, useNativeDriver: true, easing: Easing.linear }),
-    ).start();
-    Animated.loop(
+    if (reduced) return;
+    const a = Animated.loop(Animated.timing(x, { toValue: 1, duration: 3400, delay: 500, useNativeDriver: true, easing: Easing.linear }));
+    const b = Animated.loop(
       Animated.sequence([
         Animated.timing(bob, { toValue: 1, duration: 450, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
         Animated.timing(bob, { toValue: 0, duration: 450, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
       ]),
-    ).start();
-  }, [x, bob]);
+    );
+    a.start();
+    b.start();
+    return () => {
+      a.stop();
+      b.stop();
+    };
+  }, [reduced, x, bob]);
+  if (reduced) return null;
   const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-70, SCREEN_W - 10] });
   const translateY = bob.interpolate({ inputRange: [0, 1], outputRange: [0, -5] });
-  return (
-    <Animated.Text style={[styles.scooter, { transform: [{ translateX }, { translateY }, { scaleX: -1 }] }]}>
-      🛵
-    </Animated.Text>
-  );
+  return <Animated.Text style={[styles.scooter, { transform: [{ translateX }, { translateY }, { scaleX: -1 }] }]}>🛵</Animated.Text>;
 }
 
-/** A diagonal light band that sweeps across the hero. */
 function Shine() {
+  const reduced = useReducedMotion();
   const x = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(x, { toValue: 1, duration: 2400, delay: 1000, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
-    ).start();
-  }, [x]);
+    if (reduced) return;
+    const l = Animated.loop(Animated.timing(x, { toValue: 1, duration: 2400, delay: 1000, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }));
+    l.start();
+    return () => l.stop();
+  }, [reduced, x]);
+  if (reduced) return null;
   const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-140, SCREEN_W] });
   return <Animated.View pointerEvents="none" style={[styles.shine, { transform: [{ translateX }, { rotate: '18deg' }] }]} />;
 }
 
-/** Fade + slide-up entrance using RN's built-in animation engine. */
-function FadeInView({ delay = 0, children, style }: { delay?: number; children: ReactNode; style?: any }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 500, delay, useNativeDriver: true }),
-      Animated.spring(translateY, { toValue: 0, delay, useNativeDriver: true, speed: 12, bounciness: 6 }),
-    ]).start();
-  }, [delay, opacity, translateY]);
-  return <Animated.View style={[style, { opacity, transform: [{ translateY }] }]}>{children}</Animated.View>;
-}
-
-/** Pulsing "live" indicator dot. */
 function LiveDot() {
+  const reduced = useReducedMotion();
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1500, useNativeDriver: true })).start();
-  }, [pulse]);
+    if (reduced) return;
+    const l = Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1500, useNativeDriver: true }));
+    l.start();
+    return () => l.stop();
+  }, [reduced, pulse]);
   const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 2.6] });
   const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] });
   return (
     <View style={styles.liveWrap}>
-      <Animated.View style={[styles.liveRing, { transform: [{ scale }], opacity }]} />
+      {!reduced && <Animated.View style={[styles.liveRing, { transform: [{ scale }], opacity }]} />}
       <View style={styles.liveCore} />
     </View>
   );
 }
+
+/* ---------------- Cards / steps ---------------- */
 
 function ActionCard({
   title,
@@ -251,7 +294,7 @@ function ActionCard({
       }}
       style={({ pressed }) => [
         styles.actionCard,
-        { backgroundColor: c.card, borderColor: c.border, opacity: pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] },
+        { backgroundColor: c.card, borderColor: c.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.985 : 1 }] },
       ]}>
       <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.actionIcon}>
         <Ionicons name={icon} size={26} color="#FFFFFF" />
@@ -310,32 +353,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   hero: { padding: Spacing.four, overflow: 'hidden', minHeight: 190 },
-  blob1: {
-    position: 'absolute',
-    top: -40,
-    right: -30,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-  },
-  blob2: {
-    position: 'absolute',
-    bottom: -50,
-    left: -20,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-  },
-  shine: {
-    position: 'absolute',
-    top: -60,
-    left: 0,
-    width: 70,
-    height: 320,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-  },
+  blob1: { position: 'absolute', top: -40, right: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.18)' },
+  blob2: { position: 'absolute', bottom: -50, left: -20, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.12)' },
+  shine: { position: 'absolute', top: -60, left: 0, width: 70, height: 320, backgroundColor: 'rgba(255,255,255,0.18)' },
   scooter: { position: 'absolute', bottom: 10, left: 0, fontSize: 30 },
   heroTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', lineHeight: 32 },
   heroSub: { color: '#FFF1E6', fontSize: 14, marginTop: Spacing.two, lineHeight: 20 },
@@ -352,13 +372,7 @@ const styles = StyleSheet.create({
   },
   heroBadgeText: { fontSize: 12, fontWeight: '700' },
 
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginTop: Spacing.two,
-    marginBottom: Spacing.three,
-    paddingHorizontal: Spacing.three,
-  },
+  sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: Spacing.two, marginBottom: Spacing.three, paddingHorizontal: Spacing.three },
 
   actionCard: {
     flexDirection: 'row',
@@ -374,13 +388,21 @@ const styles = StyleSheet.create({
   actionTitle: { fontSize: 16, fontWeight: '700' },
   actionSub: { fontSize: 13, marginTop: 2 },
 
-  stepsRow: {
+  stats: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.three,
+    marginHorizontal: Spacing.three,
+    marginTop: Spacing.two,
     marginBottom: Spacing.five,
-    gap: Spacing.two,
+    paddingVertical: Spacing.three,
+    borderRadius: Radius.md,
+    borderWidth: 1,
   },
+  statCell: { flex: 1, alignItems: 'center', gap: 4 },
+  statSep: { width: 1, marginVertical: 4 },
+  statNum: { fontSize: 20, fontWeight: '800' },
+  statLabel: { fontSize: 11, fontWeight: '600' },
+
+  stepsRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.three, marginBottom: Spacing.five, gap: Spacing.two },
   step: { flex: 1, alignItems: 'center' },
   stepBubble: { width: 36, height: 36, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
   stepNum: { fontWeight: '800', fontSize: 16 },
