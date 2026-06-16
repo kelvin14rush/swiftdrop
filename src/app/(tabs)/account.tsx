@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuroraBackground } from '@/components/aurora';
 import { FadeInView, PressableScale } from '@/components/motion';
 import { Brand, Colors, glassColors, Radius, Spacing } from '@/constants/theme';
+import { useAuth } from '@/lib/auth';
 import { useProfile } from '@/lib/profile';
 
 type Row = { icon: keyof typeof Ionicons.glyphMap; label: string; route: Href };
@@ -25,7 +26,8 @@ export default function AccountScreen() {
   const glass = glassColors(scheme);
   const insets = useSafeAreaInsets();
   const { profile } = useProfile();
-  const initial = (profile.name.trim()[0] || 'G').toUpperCase();
+  const { user, signOut } = useAuth();
+  const initial = (profile.name.trim()[0] || user?.email?.[0] || 'G').toUpperCase();
 
   return (
     <View style={{ flex: 1 }}>
@@ -38,13 +40,13 @@ export default function AccountScreen() {
         </FadeInView>
 
         <FadeInView delay={60}>
-          <PressableScale onPress={() => router.push('/edit-profile')} style={[styles.profile, { backgroundColor: glass.bg, borderColor: glass.border }]}>
+          <PressableScale onPress={() => router.push((user ? '/edit-profile' : '/sign-in') as Href)} style={[styles.profile, { backgroundColor: glass.bg, borderColor: glass.border }]}>
             <View style={[styles.avatar, { backgroundColor: Brand.primary }]}>
               <Text style={styles.avatarText}>{initial}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.name, { color: c.text }]}>{profile.name.trim() || 'Guest user'}</Text>
-              <Text style={[styles.sub, { color: c.textSecondary }]}>{profile.phone.trim() || 'Tap to set up your profile'}</Text>
+              <Text style={[styles.name, { color: c.text }]}>{user ? profile.name.trim() || 'My account' : 'Sign in'}</Text>
+              <Text style={[styles.sub, { color: c.textSecondary }]}>{user ? user.email : 'Sync your orders across devices'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={22} color={c.textSecondary} />
           </PressableScale>
@@ -66,6 +68,15 @@ export default function AccountScreen() {
             ))}
           </View>
         </FadeInView>
+
+        {user ? (
+          <FadeInView delay={200}>
+            <PressableScale onPress={() => signOut()} style={[styles.signOut, { borderColor: glass.border, backgroundColor: glass.bg }]}>
+              <Ionicons name="log-out-outline" size={18} color="#EF4444" />
+              <Text style={styles.signOutText}>Sign out</Text>
+            </PressableScale>
+          </FadeInView>
+        ) : null}
 
         <Text style={[styles.version, { color: c.textSecondary }]}>SwiftDrop v1.0.0 • Made in Ghana 🇬🇭</Text>
       </ScrollView>
@@ -94,5 +105,7 @@ const styles = StyleSheet.create({
   rowIcon: { width: 34, height: 34, borderRadius: Radius.sm, alignItems: 'center', justifyContent: 'center' },
   rowLabel: { flex: 1, fontSize: 15, fontWeight: '500' },
 
+  signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: Spacing.four, paddingVertical: Spacing.three, borderRadius: Radius.pill, borderWidth: 1 },
+  signOutText: { color: '#EF4444', fontWeight: '700', fontSize: 15 },
   version: { textAlign: 'center', marginTop: Spacing.four, fontSize: 12 },
 });
