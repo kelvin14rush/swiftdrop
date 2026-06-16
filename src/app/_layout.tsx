@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Brand, Colors } from '@/constants/theme';
 import { OrdersProvider } from '@/lib/orders';
+import { ProfileProvider } from '@/lib/profile';
 
 export default function RootLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -15,19 +16,27 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <OrdersProvider>
-            <Stack
-              screenOptions={{
-                headerStyle: { backgroundColor: Brand.primary },
-                headerTintColor: '#FFFFFF',
-                headerTitleStyle: { fontWeight: '700' },
-                contentStyle: { backgroundColor: Colors[scheme].background },
-              }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="new-delivery" options={{ title: 'Send a Package' }} />
-              <Stack.Screen name="buy-me" options={{ title: 'Buy me something' }} />
-            </Stack>
-          </OrdersProvider>
+          <ProfileProvider>
+            <OrdersProvider>
+              <Stack
+                screenOptions={{
+                  headerStyle: { backgroundColor: Brand.primary },
+                  headerTintColor: '#FFFFFF',
+                  headerTitleStyle: { fontWeight: '700' },
+                  contentStyle: { backgroundColor: Colors[scheme].background },
+                }}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="new-delivery" options={{ title: 'Send a Package' }} />
+                <Stack.Screen name="buy-me" options={{ title: 'Buy me something' }} />
+                <Stack.Screen name="edit-profile" options={{ title: 'Edit profile' }} />
+                <Stack.Screen name="addresses" options={{ title: 'Saved addresses' }} />
+                <Stack.Screen name="payment-methods" options={{ title: 'Payment methods' }} />
+                <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+                <Stack.Screen name="help" options={{ title: 'Help & support' }} />
+                <Stack.Screen name="about" options={{ title: 'About SwiftDrop' }} />
+              </Stack>
+            </OrdersProvider>
+          </ProfileProvider>
           <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         </ThemeProvider>
       </SafeAreaProvider>
