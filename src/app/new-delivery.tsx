@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -35,17 +34,13 @@ export default function NewDeliveryScreen() {
   const ready = pickup.trim().length > 2 && dropoff.trim().length > 2;
 
   function findRider() {
-    const order = addOrder({
+    addOrder({
       type: 'package',
       title: `Send a ${size.label.toLowerCase()} package`,
       subtitle: `${pickup} → ${dropoff}`,
       total,
     });
-    Alert.alert(
-      'Order placed 🎉',
-      `A rider is being matched.\n\nYour delivery code is ${order.pin} — share it with the rider only when your package arrives, so the order can't be completed without you.`,
-      [{ text: 'View orders', onPress: () => router.replace('/orders') }],
-    );
+    router.replace('/order-confirmed');
   }
 
   return (

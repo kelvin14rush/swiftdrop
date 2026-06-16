@@ -34,6 +34,7 @@ export default function RootLayout() {
                 <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
                 <Stack.Screen name="help" options={{ title: 'Help & support' }} />
                 <Stack.Screen name="about" options={{ title: 'About SwiftDrop' }} />
+                <Stack.Screen name="order-confirmed" options={{ headerShown: false, animation: 'fade' }} />
               </Stack>
             </OrdersProvider>
           </ProfileProvider>
