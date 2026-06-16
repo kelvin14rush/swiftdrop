@@ -3,10 +3,12 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Animated, Dimensions, Easing, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Brand, Colors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
+
+const SCREEN_W = Dimensions.get('window').width;
 
 export default function HomeScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -51,12 +53,14 @@ export default function HomeScreen() {
             style={styles.hero}>
             <View style={styles.heroCircle1} />
             <View style={styles.heroCircle2} />
+            <Shine />
             <Text style={styles.heroTitle}>Get anything{'\n'}done, fast.</Text>
             <Text style={styles.heroSub}>Send a parcel or have a rider buy what you need — delivered in minutes.</Text>
             <View style={styles.heroBadge}>
               <Ionicons name="flash" size={14} color={Brand.primaryDark} />
               <Text style={[styles.heroBadgeText, { color: Brand.primaryDark }]}>Avg. 25 min</Text>
             </View>
+            <Scooter />
           </LinearGradient>
         </FadeInView>
 
@@ -115,14 +119,50 @@ export default function HomeScreen() {
   );
 }
 
+/** A scooter that drives across the hero on a loop. */
+function Scooter() {
+  const x = useRef(new Animated.Value(0)).current;
+  const bob = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(x, { toValue: 1, duration: 3400, delay: 500, useNativeDriver: true, easing: Easing.linear }),
+    ).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bob, { toValue: 1, duration: 450, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        Animated.timing(bob, { toValue: 0, duration: 450, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+      ]),
+    ).start();
+  }, [x, bob]);
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-70, SCREEN_W - 10] });
+  const translateY = bob.interpolate({ inputRange: [0, 1], outputRange: [0, -5] });
+  return (
+    <Animated.Text style={[styles.scooter, { transform: [{ translateX }, { translateY }, { scaleX: -1 }] }]}>
+      🛵
+    </Animated.Text>
+  );
+}
+
+/** A diagonal light band that sweeps across the hero. */
+function Shine() {
+  const x = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(x, { toValue: 1, duration: 2400, delay: 1000, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+    ).start();
+  }, [x]);
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-140, SCREEN_W] });
+  return <Animated.View pointerEvents="none" style={[styles.shine, { transform: [{ translateX }, { rotate: '18deg' }] }]} />;
+}
+
 /** Fade + slide-up entrance using RN's built-in animation engine. */
 function FadeInView({ delay = 0, children, style }: { delay?: number; children: ReactNode; style?: any }) {
   const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(14)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 450, delay, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 450, delay, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 500, delay, useNativeDriver: true }),
+      Animated.spring(translateY, { toValue: 0, delay, useNativeDriver: true, speed: 12, bounciness: 6 }),
     ]).start();
   }, [delay, opacity, translateY]);
   return <Animated.View style={[style, { opacity, transform: [{ translateY }] }]}>{children}</Animated.View>;
@@ -225,7 +265,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     elevation: 8,
   },
-  hero: { padding: Spacing.four, overflow: 'hidden' },
+  hero: { padding: Spacing.four, overflow: 'hidden', minHeight: 190 },
   heroCircle1: {
     position: 'absolute',
     top: -40,
@@ -244,6 +284,15 @@ const styles = StyleSheet.create({
     borderRadius: 55,
     backgroundColor: 'rgba(255,255,255,0.10)',
   },
+  shine: {
+    position: 'absolute',
+    top: -60,
+    left: 0,
+    width: 70,
+    height: 320,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+  scooter: { position: 'absolute', bottom: 10, left: 0, fontSize: 30 },
   heroTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', lineHeight: 32 },
   heroSub: { color: '#FFF1E6', fontSize: 14, marginTop: Spacing.two, lineHeight: 20 },
   heroBadge: {
