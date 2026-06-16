@@ -24,6 +24,7 @@ export default function RootLayout() {
                   headerTintColor: '#FFFFFF',
                   headerTitleStyle: { fontWeight: '700' },
                   contentStyle: { backgroundColor: Colors[scheme].background },
+                  animation: 'slide_from_right',
                 }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="new-delivery" options={{ title: 'Send a Package' }} />

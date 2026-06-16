@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuroraBackground } from '@/components/aurora';
 import { Counter, FadeInView, Reveal, Skeleton, useReducedMotion } from '@/components/motion';
-import { Brand, Colors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
+import { Brand, Colors, glassColors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
 
 const SCREEN_W = Dimensions.get('window').width;
 
@@ -20,10 +20,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const glass: Glass =
-    scheme === 'dark'
-      ? { bg: 'rgba(26,26,34,0.55)', border: 'rgba(255,255,255,0.10)' }
-      : { bg: 'rgba(255,255,255,0.62)', border: 'rgba(255,255,255,0.75)' };
+  const glass: Glass = glassColors(scheme);
 
   return (
     <View style={{ flex: 1 }}>
