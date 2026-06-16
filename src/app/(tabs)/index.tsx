@@ -51,8 +51,7 @@ export default function HomeScreen() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.hero}>
-            <View style={styles.heroCircle1} />
-            <View style={styles.heroCircle2} />
+            <HeroBackground />
             <Shine />
             <Text style={styles.heroTitle}>Get anything{'\n'}done, fast.</Text>
             <Text style={styles.heroSub}>Send a parcel or have a rider buy what you need — delivered in minutes.</Text>
@@ -116,6 +115,51 @@ export default function HomeScreen() {
         </FadeInView>
       </ScrollView>
     </View>
+  );
+}
+
+/** Living hero background: a slowly shifting gradient overlay + drifting light blobs. */
+function HeroBackground() {
+  const shift = useRef(new Animated.Value(0)).current;
+  const b1 = useRef(new Animated.Value(0)).current;
+  const b2 = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const breathe = (v: Animated.Value, duration: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(v, { toValue: 1, duration, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+          Animated.timing(v, { toValue: 0, duration, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        ]),
+      );
+    const loops = [breathe(shift, 3500), breathe(b1, 6000), breathe(b2, 7500)];
+    loops.forEach((l) => l.start());
+    return () => loops.forEach((l) => l.stop());
+  }, [shift, b1, b2]);
+
+  const overlayOpacity = shift.interpolate({ inputRange: [0, 1], outputRange: [0, 0.6] });
+  const b1t = {
+    transform: [
+      { translateX: b1.interpolate({ inputRange: [0, 1], outputRange: [0, 26] }) },
+      { translateY: b1.interpolate({ inputRange: [0, 1], outputRange: [0, 18] }) },
+      { scale: b1.interpolate({ inputRange: [0, 1], outputRange: [1, 1.25] }) },
+    ],
+  };
+  const b2t = {
+    transform: [
+      { translateX: b2.interpolate({ inputRange: [0, 1], outputRange: [0, -22] }) },
+      { translateY: b2.interpolate({ inputRange: [0, 1], outputRange: [0, -16] }) },
+      { scale: b2.interpolate({ inputRange: [0, 1], outputRange: [1.15, 0.85] }) },
+    ],
+  };
+
+  return (
+    <>
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: overlayOpacity }]}>
+        <LinearGradient colors={['#FFC24B', '#FF477E', '#F23D02']} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
+      </Animated.View>
+      <Animated.View pointerEvents="none" style={[styles.blob1, b1t]} />
+      <Animated.View pointerEvents="none" style={[styles.blob2, b2t]} />
+    </>
   );
 }
 
@@ -266,23 +310,23 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   hero: { padding: Spacing.four, overflow: 'hidden', minHeight: 190 },
-  heroCircle1: {
+  blob1: {
     position: 'absolute',
     top: -40,
     right: -30,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(255,255,255,0.16)',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(255,255,255,0.18)',
   },
-  heroCircle2: {
+  blob2: {
     position: 'absolute',
     bottom: -50,
     left: -20,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   shine: {
     position: 'absolute',
