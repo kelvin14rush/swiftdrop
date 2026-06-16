@@ -52,6 +52,13 @@ export const Colors: { light: ThemePalette; dark: ThemePalette } = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+/** Translucent "glass" surface colors for cards layered over the aurora. */
+export function glassColors(scheme: 'light' | 'dark') {
+  return scheme === 'dark'
+    ? { bg: 'rgba(26,26,34,0.55)', border: 'rgba(255,255,255,0.10)' }
+    : { bg: 'rgba(255,255,255,0.62)', border: 'rgba(255,255,255,0.75)' };
+}
+
 export const Fonts = Platform.select({
   ios: {
     sans: 'system-ui',

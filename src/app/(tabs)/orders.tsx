@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { FlatList, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Brand, Colors, Radius, Spacing } from '@/constants/theme';
+import { AuroraBackground } from '@/components/aurora';
+import { FadeInView, PressableScale, Skeleton } from '@/components/motion';
+import { Brand, Colors, glassColors, Radius, Spacing, type ThemePalette } from '@/constants/theme';
 import { useOrders, type Order } from '@/lib/orders';
 
 function timeAgo(ts: number) {
@@ -19,46 +21,73 @@ function timeAgo(ts: number) {
 export default function OrdersScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const c = Colors[scheme];
+  const glass = glassColors(scheme);
   const insets = useSafeAreaInsets();
-  const { orders } = useOrders();
+  const { orders, loaded } = useOrders();
+
+  // Loading skeletons while orders hydrate from storage.
+  if (!loaded) {
+    return (
+      <View style={{ flex: 1 }}>
+        <AuroraBackground />
+        <View style={{ paddingHorizontal: Spacing.three, paddingTop: insets.top + Spacing.four }}>
+          <Text style={[styles.title, { color: c.text }]}>Your orders</Text>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={[styles.card, { backgroundColor: glass.bg, borderColor: glass.border, marginBottom: Spacing.three }]}>
+              <Skeleton width={46} height={46} radius={Radius.sm} />
+              <View style={{ flex: 1, gap: 8 }}>
+                <Skeleton width="70%" height={14} />
+                <Skeleton width="45%" height={12} />
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }
 
   if (orders.length === 0) {
     return (
-      <View style={[styles.empty, { backgroundColor: c.background, paddingTop: insets.top }]}>
-        <View style={[styles.emptyIcon, { backgroundColor: Brand.primarySoft }]}>
-          <Ionicons name="cube-outline" size={40} color={Brand.primary} />
-        </View>
-        <Text style={[styles.emptyTitle, { color: c.text }]}>No orders yet</Text>
-        <Text style={[styles.emptySub, { color: c.textSecondary }]}>
-          Your deliveries and errands will show up here.
-        </Text>
-        <Pressable
-          onPress={() => router.push('/new-delivery')}
-          style={({ pressed }) => [styles.cta, { backgroundColor: Brand.primary, opacity: pressed ? 0.85 : 1 }]}>
-          <Text style={styles.ctaText}>Start an order</Text>
-        </Pressable>
+      <View style={{ flex: 1 }}>
+        <AuroraBackground />
+        <FadeInView style={[styles.empty, { paddingTop: insets.top }]}>
+          <View style={[styles.emptyIcon, { backgroundColor: Brand.primarySoft }]}>
+            <Ionicons name="cube-outline" size={40} color={Brand.primary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: c.text }]}>No orders yet</Text>
+          <Text style={[styles.emptySub, { color: c.textSecondary }]}>Your deliveries and errands will show up here.</Text>
+          <PressableScale onPress={() => router.push('/new-delivery')} style={[styles.cta, { backgroundColor: Brand.primary }]}>
+            <Text style={styles.ctaText}>Start an order</Text>
+          </PressableScale>
+        </FadeInView>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.background }}>
+    <View style={{ flex: 1 }}>
+      <AuroraBackground />
       <FlatList
         data={orders}
         keyExtractor={(o) => o.id}
+        style={{ backgroundColor: 'transparent' }}
         contentContainerStyle={{ paddingHorizontal: Spacing.three, paddingTop: insets.top + Spacing.four, paddingBottom: Spacing.six }}
         ListHeaderComponent={<Text style={[styles.title, { color: c.text }]}>Your orders</Text>}
         ItemSeparatorComponent={() => <View style={{ height: Spacing.three }} />}
-        renderItem={({ item }) => <OrderCard o={item} c={c} />}
+        renderItem={({ item, index }) => (
+          <FadeInView delay={Math.min(index, 6) * 70}>
+            <OrderCard o={item} c={c} glass={glass} />
+          </FadeInView>
+        )}
       />
     </View>
   );
 }
 
-function OrderCard({ o, c }: { o: Order; c: (typeof Colors)['light'] }) {
+function OrderCard({ o, c, glass }: { o: Order; c: ThemePalette; glass: { bg: string; border: string } }) {
   const icon = o.type === 'package' ? 'cube' : 'bag-handle';
   return (
-    <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
+    <View style={[styles.card, { backgroundColor: glass.bg, borderColor: glass.border }]}>
       <View style={[styles.iconWrap, { backgroundColor: Brand.primarySoft }]}>
         <Ionicons name={icon} size={22} color={Brand.primary} />
       </View>
