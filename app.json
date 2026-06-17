@@ -39,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bfc8b37d-2fd3-467a-98bb-8e9f777fdbb2"
+      }
+    },
+    "owner": "kelvin_69"
   }
 }
