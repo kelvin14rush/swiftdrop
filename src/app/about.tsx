@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import { Brand, Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 export default function About() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
