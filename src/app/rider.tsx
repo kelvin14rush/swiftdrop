@@ -33,9 +33,10 @@ export default function Rider() {
       return;
     }
     setLoading(true);
+    // Read from the rider_jobs view, which excludes the delivery code (pin).
     const [a, m] = await Promise.all([
-      supabase.from('orders').select(COLS).is('rider_id', null).eq('status', 'Finding a rider').order('created_at', { ascending: false }),
-      supabase.from('orders').select(COLS).eq('rider_id', user.id).neq('status', 'Delivered').order('created_at', { ascending: false }),
+      supabase.from('rider_jobs').select(COLS).is('rider_id', null).eq('status', 'Finding a rider').order('created_at', { ascending: false }),
+      supabase.from('rider_jobs').select(COLS).eq('rider_id', user.id).neq('status', 'Delivered').order('created_at', { ascending: false }),
     ]);
     setAvailable((a.data ?? []) as Job[]);
     setMine((m.data ?? []) as Job[]);
