@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
@@ -46,14 +46,16 @@ export default function OrderConfirmed() {
       ) : null}
 
       <View style={styles.actions}>
-        <PressableScale onPress={() => router.replace('/orders')} style={[styles.primary, { backgroundColor: Brand.primary }]}>
+        <PressableScale
+          onPress={() => router.replace(order ? ({ pathname: '/track', params: { id: order.id } } as Href) : '/orders')}
+          style={[styles.primary, { backgroundColor: Brand.primary }]}>
           <View style={styles.primaryInner}>
-            <Text style={styles.primaryText}>View my orders</Text>
+            <Text style={styles.primaryText}>Track your order</Text>
           </View>
         </PressableScale>
-        <PressableScale haptic={false} onPress={() => router.replace('/')} style={styles.secondary}>
+        <PressableScale haptic={false} onPress={() => router.replace('/orders')} style={styles.secondary}>
           <View style={styles.secondaryInner}>
-            <Text style={[styles.secondaryText, { color: c.textSecondary }]}>Back to home</Text>
+            <Text style={[styles.secondaryText, { color: c.textSecondary }]}>View my orders</Text>
           </View>
         </PressableScale>
       </View>

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { FlatList, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -87,7 +87,9 @@ export default function OrdersScreen() {
 function OrderCard({ o, c, glass }: { o: Order; c: ThemePalette; glass: { bg: string; border: string } }) {
   const icon = o.type === 'package' ? 'cube' : 'bag-handle';
   return (
-    <View style={[styles.card, { backgroundColor: glass.bg, borderColor: glass.border }]}>
+    <PressableScale
+      onPress={() => router.push({ pathname: '/track', params: { id: o.id } } as Href)}
+      style={[styles.card, { backgroundColor: glass.bg, borderColor: glass.border }]}>
       <View style={[styles.iconWrap, { backgroundColor: Brand.primarySoft }]}>
         <Ionicons name={icon} size={22} color={Brand.primary} />
       </View>
@@ -111,7 +113,7 @@ function OrderCard({ o, c, glass }: { o: Order; c: ThemePalette; glass: { bg: st
         ) : null}
       </View>
       <Text style={[styles.total, { color: c.text }]}>GHS {o.total}</Text>
-    </View>
+    </PressableScale>
   );
 }
 
