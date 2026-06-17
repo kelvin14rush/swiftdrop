@@ -78,19 +78,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [profile, loaded]);
 
   function update(patch: Partial<Profile>) {
-    setProfile((p) => {
-      const next = { ...p, ...patch };
-      // Sync name/phone to the cloud when signed in.
-      if (cloud && supabase && user && (patch.name !== undefined || patch.phone !== undefined)) {
-        supabase
-          .from('profiles')
-          .upsert({ id: user.id, name: next.name, phone: next.phone })
-          .then(({ error }) => {
-            if (error) console.warn('Profile save failed:', error.message);
-          });
-      }
-      return next;
-    });
+    setProfile((p) => ({ ...p, ...patch }));
+    // Sync name/phone to the cloud when signed in.
+    if (cloud && supabase && user && (patch.name !== undefined || patch.phone !== undefined)) {
+      supabase
+        .from('profiles')
+        .upsert({ id: user.id, name: patch.name ?? profile.name, phone: patch.phone ?? profile.phone })
+        .then(({ error }) => {
+          if (error) console.warn('Profile save failed:', error.message);
+        });
+    }
   }
 
   function addAddress(address: string) {
