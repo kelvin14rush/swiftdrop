@@ -7,7 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "swiftdrop",
     "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.kelvin14rush.swiftdrop",
+      "supportsTablet": true
+    },
     "android": {
+      "package": "com.kelvin14rush.swiftdrop",
       "adaptiveIcon": {
         "backgroundColor": "#FF6B00",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
