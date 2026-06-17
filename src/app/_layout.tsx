@@ -38,6 +38,7 @@ export default function RootLayout() {
                 <Stack.Screen name="help" options={{ title: 'Help & support' }} />
                 <Stack.Screen name="about" options={{ title: 'About SwiftDrop' }} />
                 <Stack.Screen name="sign-in" options={{ title: 'Account' }} />
+                <Stack.Screen name="track" options={{ title: 'Track order' }} />
                 <Stack.Screen name="order-confirmed" options={{ headerShown: false, animation: 'fade' }} />
               </Stack>
             </OrdersProvider>
