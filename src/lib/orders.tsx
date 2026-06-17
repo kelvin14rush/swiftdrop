@@ -45,7 +45,6 @@ function makePin() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToOrder(r: any): Order {
   return {
     id: String(r.id),
@@ -103,7 +102,6 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloud, user?.id]);
 
   // Persist locally only in local mode (cloud is the source of truth otherwise).
@@ -156,6 +154,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     if (!cloud) AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const value = useMemo<OrdersValue>(() => ({ orders, loaded, addOrder, clear }), [orders, loaded, cloud, user?.id]);
 
   return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
