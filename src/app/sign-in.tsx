@@ -26,13 +26,13 @@ export default function SignIn() {
     setInfo(null);
     setBusy(true);
     const run = mode === 'in' ? signIn : signUp;
-    const { error: err } = await run(email.trim(), password);
+    const res = await run(email.trim(), password);
     setBusy(false);
-    if (err) {
-      setError(err);
+    if (res.error) {
+      setError(res.error);
       return;
     }
-    if (mode === 'up') {
+    if (mode === 'up' && res.needsConfirmation) {
       setInfo('Account created! Check your email to confirm, then sign in.');
       setMode('in');
       return;
