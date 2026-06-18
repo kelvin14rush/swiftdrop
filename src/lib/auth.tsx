@@ -8,7 +8,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
-type Result = { error?: string };
+type Result = { error?: string; needsConfirmation?: boolean };
 
 type AuthValue = {
   configured: boolean;
@@ -38,8 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signUp(email: string, password: string): Promise<Result> {
     if (!supabase) return { error: 'Supabase isn’t connected yet. Add your keys to .env.' };
-    const { error } = await supabase.auth.signUp({ email, password });
-    return error ? { error: error.message } : {};
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return { error: error.message };
+    // If email confirmation is off, Supabase returns a session (auto signed-in).
+    return { needsConfirmation: !data.session };
   }
 
   async function signIn(email: string, password: string): Promise<Result> {
