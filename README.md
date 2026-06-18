@@ -4,6 +4,14 @@ A polished, cross-platform **errand & delivery** app built with Expo / React Nat
 
 > Built as a portfolio / white-label product. Payments are intentionally left unintegrated so a buyer can plug in their own provider (mobile money, Stripe, etc.).
 
+## Screenshots
+
+> Drop your phone screenshots into `docs/screenshots/` using the filenames below and they'll render here.
+
+| Home | Send a package | Live tracking | Rider mode |
+|:---:|:---:|:---:|:---:|
+| ![Home](docs/screenshots/home.png) | ![Send a package](docs/screenshots/send.png) | ![Live tracking](docs/screenshots/tracking.png) | ![Rider mode](docs/screenshots/rider.png) |
+
 ## Features
 
 - **Two errand types** — “Send a package” and “Buy me something” (a rider buys and delivers it)
