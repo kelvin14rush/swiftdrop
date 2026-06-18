@@ -20,6 +20,7 @@ export type Order = {
   total: number;
   status: string;
   pin: string;
+  riderId: string | null;
   createdAt: number;
 };
 
@@ -54,6 +55,7 @@ function rowToOrder(r: any): Order {
     total: Number(r.total),
     status: r.status,
     pin: r.pin,
+    riderId: r.rider_id ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
   };
 }
@@ -109,12 +111,29 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     if (loaded && !cloud) AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(orders)).catch(() => {});
   }, [orders, loaded, cloud]);
 
+  // Live updates: refetch whenever any of the user's orders change (e.g. a rider
+  // accepts or completes a delivery) via Supabase Realtime.
+  useEffect(() => {
+    if (!cloud || !supabase || !user) return;
+    const channel = supabase
+      .channel(`orders-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` }, () => {
+        fetchCloud();
+      })
+      .subscribe();
+    return () => {
+      supabase?.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloud, user?.id]);
+
   function addOrder(input: NewOrderInput): Order {
     const order: Order = {
       id: (cloud ? 'tmp_' : 'ord_') + Date.now().toString(36),
       createdAt: Date.now(),
       status: input.status ?? 'Finding a rider',
       pin: makePin(),
+      riderId: null,
       type: input.type,
       title: input.title,
       subtitle: input.subtitle,

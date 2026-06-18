@@ -111,6 +111,12 @@ function OrderCard({ o, c, glass }: { o: Order; c: ThemePalette; glass: { bg: st
             <Text style={[styles.pinText, { color: c.textSecondary }]}>Delivery code {o.pin}</Text>
           </View>
         ) : null}
+        {o.status === 'Delivered' ? (
+          <PressableScale onPress={() => router.push({ pathname: '/rate', params: { id: o.id } } as Href)} style={[styles.rateBtn, { backgroundColor: Brand.primarySoft }]}>
+            <Ionicons name="star" size={12} color={Brand.warning} />
+            <Text style={[styles.rateText, { color: Brand.primaryDark }]}>Rate your rider</Text>
+          </PressableScale>
+        ) : null}
       </View>
       <Text style={[styles.total, { color: c.text }]}>GHS {o.total}</Text>
     </PressableScale>
@@ -130,6 +136,8 @@ const styles = StyleSheet.create({
   time: { fontSize: 12 },
   pinChip: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill, marginTop: Spacing.two },
   pinText: { fontSize: 11, fontWeight: '700' },
+  rateBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, marginTop: Spacing.two },
+  rateText: { fontSize: 12, fontWeight: '700' },
   total: { fontSize: 15, fontWeight: '800' },
 
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.four },

@@ -13,6 +13,7 @@ type Row = { icon: keyof typeof Ionicons.glyphMap; label: string; route: Href };
 
 const ROWS: Row[] = [
   { icon: 'bicycle-outline', label: 'Rider mode — deliver & earn', route: '/rider' as Href },
+  { icon: 'speedometer-outline', label: 'Admin dashboard', route: '/admin' as Href },
   { icon: 'person-outline', label: 'Edit profile', route: '/edit-profile' },
   { icon: 'card-outline', label: 'Payment methods', route: '/payment-methods' },
   { icon: 'location-outline', label: 'Saved addresses', route: '/addresses' },
