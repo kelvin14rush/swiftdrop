@@ -66,10 +66,15 @@ export default function RiderVerify() {
   return (
     <ScrollView style={{ backgroundColor: c.background }} contentContainerStyle={{ padding: Spacing.three, paddingBottom: Spacing.six }}>
       <Text style={[styles.heading, { color: c.text }]}>Get verified to deliver</Text>
-      <Text style={[styles.lead, { color: c.textSecondary }]}>
-        For everyone’s safety, riders verify their identity before accepting jobs. In production this is handled by a KYC
-        provider (e.g. Smile ID) — ID check, liveness, and a face match.
-      </Text>
+      <Text style={[styles.lead, { color: c.textSecondary }]}>For everyone’s safety, riders verify their identity before accepting jobs.</Text>
+
+      <View style={[styles.demo, { backgroundColor: c.backgroundElement, borderColor: c.border }]}>
+        <Ionicons name="construct-outline" size={16} color={Brand.primary} />
+        <Text style={[styles.demoText, { color: c.textSecondary }]}>
+          Demo mode: this auto-approves for testing. In production your ID + selfie go to a KYC provider (e.g. Smile ID) for
+          document, liveness, and face-match checks.
+        </Text>
+      </View>
 
       <Capture c={c} label="Government ID (Ghana Card)" icon="card-outline" image={idImage} onPress={pickId} />
       <Capture c={c} label="Liveness selfie" icon="happy-outline" image={selfie} onPress={takeSelfie} />
@@ -114,7 +119,9 @@ function Capture({
 
 const styles = StyleSheet.create({
   heading: { fontSize: 22, fontWeight: '800', marginTop: Spacing.two },
-  lead: { fontSize: 14, lineHeight: 20, marginTop: Spacing.two, marginBottom: Spacing.four },
+  lead: { fontSize: 14, lineHeight: 20, marginTop: Spacing.two, marginBottom: Spacing.three },
+  demo: { flexDirection: 'row', gap: Spacing.two, alignItems: 'flex-start', padding: Spacing.three, borderRadius: Radius.md, borderWidth: 1, marginBottom: Spacing.four },
+  demoText: { flex: 1, fontSize: 12, lineHeight: 18 },
 
   capture: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three, borderRadius: Radius.md, borderWidth: 1.5, marginBottom: Spacing.three },
   thumb: { width: 56, height: 56, borderRadius: Radius.sm },
