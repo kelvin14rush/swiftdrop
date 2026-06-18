@@ -18,7 +18,6 @@ export function LocationPicker({ pickup, dropoff, onChange, c }: Props) {
 }
 
 function Picker({ pickup, dropoff, onChange, c }: Props) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handlePress(e: any) {
     const coord = e.nativeEvent.coordinate as Coord;
     if (!pickup) onChange(coord, dropoff);

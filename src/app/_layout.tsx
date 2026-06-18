@@ -40,6 +40,7 @@ export default function RootLayout() {
                 <Stack.Screen name="sign-in" options={{ title: 'Account' }} />
                 <Stack.Screen name="track" options={{ title: 'Track order' }} />
                 <Stack.Screen name="rider" options={{ title: 'Rider mode' }} />
+                <Stack.Screen name="rider-verify" options={{ title: 'Rider verification' }} />
                 <Stack.Screen name="order-confirmed" options={{ headerShown: false, animation: 'fade' }} />
               </Stack>
             </OrdersProvider>

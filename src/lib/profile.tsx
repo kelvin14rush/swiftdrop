@@ -11,12 +11,15 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
+export type RiderStatus = 'unverified' | 'pending' | 'verified';
+
 export type Profile = {
   name: string;
   phone: string;
   addresses: string[];
   notifyOrders: boolean;
   notifyPromos: boolean;
+  riderStatus: RiderStatus;
 };
 
 const DEFAULT_PROFILE: Profile = {
@@ -25,6 +28,7 @@ const DEFAULT_PROFILE: Profile = {
   addresses: [],
   notifyOrders: true,
   notifyPromos: false,
+  riderStatus: 'unverified',
 };
 
 type ProfileValue = {

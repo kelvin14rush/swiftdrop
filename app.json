@@ -35,6 +35,13 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SwiftDrop uses your photos to upload your ID for rider verification.",
+          "cameraPermission": "SwiftDrop uses your camera for the rider verification selfie."
+        }
       ]
     ],
     "experiments": {
