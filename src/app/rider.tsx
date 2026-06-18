@@ -49,6 +49,13 @@ export default function Rider() {
 
   async function accept(job: Job) {
     if (!supabase || !user) return;
+    if (profile.riderStatus !== 'verified') {
+      Alert.alert('Get verified first', 'You need to verify your identity before accepting deliveries.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Verify now', onPress: () => router.push('/rider-verify') },
+      ]);
+      return;
+    }
     const { error } = await supabase
       .from('orders')
       .update({ rider_id: user.id, rider_name: profile.name || 'Rider', status: 'Accepted' })
@@ -102,6 +109,22 @@ export default function Rider() {
         contentContainerStyle={{ paddingHorizontal: Spacing.three, paddingTop: insets.top + Spacing.four, paddingBottom: Spacing.six }}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={Brand.primary} />}>
         <Text style={[styles.title, { color: c.text }]}>Rider mode</Text>
+
+        {profile.riderStatus !== 'verified' ? (
+          <PressableScale onPress={() => router.push('/rider-verify')} style={styles.verifyBanner}>
+            <Ionicons name="shield-checkmark" size={20} color={Brand.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.verifyTitle, { color: Brand.primaryDark }]}>Get verified to accept jobs</Text>
+              <Text style={[styles.verifySub, { color: c.textSecondary }]}>Quick ID + selfie check.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={Brand.primary} />
+          </PressableScale>
+        ) : (
+          <View style={styles.verifiedRow}>
+            <Ionicons name="shield-checkmark" size={16} color={Brand.accent} />
+            <Text style={[styles.verifiedText, { color: Brand.accent }]}>Verified rider</Text>
+          </View>
+        )}
 
         {loading && available.length === 0 && mine.length === 0 ? (
           <ActivityIndicator color={Brand.primary} style={{ marginTop: Spacing.five }} />
@@ -200,6 +223,11 @@ function ActiveJob({
 
 const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '800', marginBottom: Spacing.three },
+  verifyBanner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three, borderRadius: Radius.md, borderWidth: 1.5, borderColor: Brand.primary, backgroundColor: Brand.primarySoft, marginBottom: Spacing.two },
+  verifyTitle: { fontSize: 14, fontWeight: '800' },
+  verifySub: { fontSize: 12, marginTop: 1 },
+  verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: Spacing.two },
+  verifiedText: { fontSize: 13, fontWeight: '700' },
   section: { fontSize: 13, fontWeight: '700', marginTop: Spacing.four, marginBottom: Spacing.three, textTransform: 'uppercase', letterSpacing: 0.5 },
   muted: { fontSize: 14, lineHeight: 20 },
 
