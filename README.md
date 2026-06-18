@@ -8,9 +8,9 @@ A polished, cross-platform **errand & delivery** app built with Expo / React Nat
 
 > Drop your phone screenshots into `docs/screenshots/` using the filenames below and they'll render here.
 
-| Home | Send a package | Live tracking | Rider mode |
+| Home | Live tracking | Rider mode | Account |
 |:---:|:---:|:---:|:---:|
-| ![Home](docs/screenshots/home.png) | ![Send a package](docs/screenshots/send.png) | ![Live tracking](docs/screenshots/tracking.png) | ![Rider mode](docs/screenshots/rider.png) |
+| ![Home](docs/screenshots/home.png) | ![Live tracking](docs/screenshots/tracking.png) | ![Rider mode](docs/screenshots/rider.png) | ![Account](docs/screenshots/account.png) |
 
 ## Features
 
