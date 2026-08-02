@@ -42,3 +42,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Claude Code local config (not for the repo)
+.claude/
