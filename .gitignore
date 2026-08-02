@@ -45,3 +45,6 @@ example
 
 # Claude Code local config (not for the repo)
 .claude/
+
+# Claude project instructions (kept local, not published)
+CLAUDE.md
